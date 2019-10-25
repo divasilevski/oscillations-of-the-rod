@@ -28,7 +28,7 @@ function plot(title, line_names, line_points, chart, vAxis = [null, null]) {
 	});
 }
 
-/** Линейная интерполяция */
+/** Linear interpolation */
 function interpolate(x, points) {
 	let error = 0.00001;
 	let interpolation = [points[1][0]];
