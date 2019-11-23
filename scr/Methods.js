@@ -25,9 +25,9 @@ class Methods {
 
 		// Find a solution for every kappa
 		let freq = kappa.map(el => {
-			this._create_solution(this.save_data[0], h, el, this.save_data[3]);
-			return this.solution[1][this._value_index(1.0)];
-		});
+            this._create_solution(this.save_data[0], h, el, this.save_data[3]);            
+			return this.solution[1][this.solution[1].length - 1];
+        });
 
 		// Return to initial data
 		this._create_solution(...this.save_data);

@@ -21,7 +21,7 @@ class Regularization {
         init_alpha = 0.1e-6,
         h = 0,
         delta = 0,
-        eps = 0.0001
+        eps = 0.00001
     ) {
         // Задаем разбиения
         let [a, b, c, d] = init_condition;
@@ -70,14 +70,50 @@ class Regularization {
             }
         } else {
             for (let j = 0; j < n; j++) {
-                F.push(func_right(s[j],j));
+                F.push(func_right(s[j], j));
             }
         }
-        console.log(F)
-        // НАХОДИМ РЕШЕНИЕ
-        this.solution = this.calculate(K, F, n, m, hs, hx, init_alpha);
+
+        // ИТЕРАЦИОННЫЙ ПРОЦЕСС
+        let alpha;
+        let alpha1 = init_alpha;
+        let alpha2 = init_alpha * 0.5;
+        let n1 = this.residual(K, F, n, m, hs, hx, alpha1, h, delta);
+        let n2 = this.residual(K, F, n, m, hs, hx, alpha2, h, delta);
+
+        let iter;
+        for (iter = 1; iter < 50; iter++) {
+            alpha =
+                alpha2 / (1 - 1 / alpha1 * (alpha1 - alpha2) * n2 / (n2 - n1));
+            n1 = n2;
+            n2 = this.residual(K, F, n, m, hs, hx, alpha, h, delta);
+            alpha1 = alpha2;
+            alpha2 = alpha;
+            if (Math.abs(alpha1 - alpha2) < eps) break;
+        }
+        console.log("iterations:", iter);
+        console.log("alpha:", alpha);
+
+        this.solution = this.calculate(K, F, n, m, hs, hx, alpha);
         this.exact_solution = E;
         this.x = x;
+    }
+
+    // Обобщенная невязка
+    residual(K, F, n, m, hs, hx, alpha, h, delta) {
+        let u = this.calculate(K, F, n, m, hs, hx, alpha);
+
+        let temp = LinearAlgebra.dot(K, u);
+        let sum = 0;
+        for (let i = 0; i < u.length; i++) {
+            sum += (temp[i] * hs - F[i]) * (temp[i] * hs - F[i]) * hx;
+        }
+
+        return (
+            sum -
+            (delta + h * LinearAlgebra.norm(u)) *
+                (delta + h * LinearAlgebra.norm(u))
+        );
     }
 
     /** Метод регуляризации Тихонова */
@@ -142,5 +178,3 @@ function stabilizer(n, step, left, right) {
 
     return matrix;
 }
-
-
