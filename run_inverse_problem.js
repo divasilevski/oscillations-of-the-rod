@@ -11,32 +11,34 @@ const METHOD_STEP = 1 / (N - 1);
 // Create frequency response
 let fr_sm = sm.frequencyResponse(0, 1, KAPPA_STEP, METHOD_STEP);
 
-let func_kernel = (x, s) => Math.cos(x * s) * Math.cos(x * s);
-let func_exact = s => 1.0 + s * s / 50;
-let func_right = (s, i) =>
-    -fr_sm[1][i] * Math.cos(s) * Math.cos(s) + Math.sin(2 * s) / (2 * s);
-
 let REG = new Regularization(
-    func_kernel,
-    func_exact,
-    //undefined,
-    func_right,
-    [0.00001, 1, 0, 1],
+    [0.0000001, 1, 0.000001, 1],
     [N, N],
-    0.0001,
-    0.000000000000000001,
-    0.000000000000000001,
-    0.0001
+    0.1,
+    10e-10,
+    10e-10,
+    0.00000001
 );
 
-let solution = REG.solution;
-REG.solution.forEach((e, i) => (REG.solution[i] += 1));
-let x = REG.x;
-let у = REG.exact_solution;
+REG.func_kernel = (x, s, i, j) => Math.cos(x * s) * Math.cos(x * s);
+REG.func_exact = (s, i) => 1.0 + s * s / 50;
+REG.func_right = (s, i) =>
+    -fr_sm[1][i] * Math.cos(s) * Math.cos(s) + Math.sin(2 * s) / (2 * s);
+
+let solution = REG.getSolution();
+let exact = REG.getExact();
+let x = REG.getPoints();
+console.log(solution)
+console.log(exact)
+console.log("x", x)
+console.log(REG.getAlpha())
+console.log(REG.getIteration())
+
+solution.forEach((e, i) => (solution[i] += 1));
 
 plot(
     "REGULARIZATION",
     ["x", "Точное решение", "Восстановленное решение"],
-    [[x, у], [x, solution]],
+    [[x, exact], [x, solution]],
     "lines"
 );
