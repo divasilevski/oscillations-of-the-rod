@@ -30,7 +30,7 @@ function plot(title, line_names, line_points, chart, vAxis = [null, null]) {
 
 /** Linear interpolation */
 function interpolate(x, points) {
-	let error = 0.00000001;
+	let error = 0.0000001;
 	let interpolation = [points[1][0]];
 
 	for (let i = 1; i < x.length; i++) {

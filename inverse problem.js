@@ -1,43 +1,35 @@
-// let func_kernel = (x, s) => 1 / (1 + 100 * (x - s) * (x - s));
-// let func_exact = s => Math.exp(-(s - 0.5) * (s - 0.5) / 0.06);
-
-const N = 101;
 const FUNC = x => 1.0 + x * x / 50; // My E(x) function for opt. 6
-let sm = new ShootingMethod(FUNC, 1 / N, 1, 1);
-const MAX_KAPPA = 1;
-const KAPPA_STEP = 1 / (N - 1);
-const METHOD_STEP = 1 / (N - 1);
+const P = 1;
+
+const N = 100;
+const STEP = 1 / (N - 1);
+const S = [0, 1];
+const X = [1e-5, 1];
+
+const ALPHA = 1e-7;
+const EPS = 1e-7;
 
 // Create frequency response
-let fr_sm = sm.frequencyResponse(0, 1, KAPPA_STEP, METHOD_STEP);
+let sm = new ShootingMethod(FUNC, STEP, 0, P);
+let fr_sm = sm.frequencyResponse(X[0], X[1], STEP, STEP);
 
-let REG = new Regularization(
-    [0.0000001, 1, 0.000001, 1],
-    [N, N],
-    0.1,
-    10e-10,
-    10e-10,
-    0.00000001
-);
-
-REG.func_kernel = (x, s, i, j) => Math.cos(x * s) * Math.cos(x * s);
-REG.func_exact = (s, i) => 1.0 + s * s / 50;
+// Tikhonov regularization
+let REG = new Regularization([...S, ...X], [N, N], ALPHA, EPS);
+REG.func_kernel = (x, s) => Math.cos(x * s) ** 2;
+REG.func_exact = s => FUNC(s);
 REG.func_right = (s, i) =>
-    fr_sm[1][i] * Math.cos(s) * Math.cos(s) + Math.sin(2 * s) / (2 * s);
+    fr_sm[1][i] * Math.cos(s) ** 2 + Math.sin(2 * s) / (2 * s);
 
-let solution = REG.getSolution();
+// Get data
+let solution = REG.getSolution().map(e => (e += 1));
 let exact = REG.getExact();
 let x = REG.getPoints();
-console.log(solution)
-console.log(exact)
-console.log("x", x)
-console.log(REG.getAlpha())
-console.log(REG.getIteration())
 
-solution.forEach((e, i) => (solution[i] += 1));
+console.log("Alpha", REG.getAlpha());
+console.log("Iteration", REG.getIteration());
 
 plot(
-    "REGULARIZATION",
+    "E(x)",
     ["x", "Точное решение", "Восстановленное решение"],
     [[x, exact], [x, solution]],
     "lines"

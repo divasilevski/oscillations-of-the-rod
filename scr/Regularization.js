@@ -17,9 +17,9 @@ class Regularization {
      * @param {Array<Number>} init_condition Начальные условия [a,b,c,d]
      * @param {Array<Number>} points_count Количество точек для разбиения [n,m]
      * @param {Number} init_alpha Начальное значение параметра регуляризации
+     * @param {Number} eps Погрешность определения параметра регуляризации
      * @param {Number} h Погрешность оператора
      * @param {Number} delta Погрешность правой части
-     * @param {Number} eps Погрешность определения параметра регуляризации
      * 
      * @param {Number} max_iter Максимальное количество итераций для поиска
      * @param {Number} boundary_condition Граничные условия [left, right] 
@@ -29,9 +29,9 @@ class Regularization {
         init_condition = [0, 1, 0, 1],
         points_count = [10, 10],
         init_alpha = 0.1e-6,
+        eps = 0.00001,
         h = 0,
-        delta = 0,
-        eps = 0.00001
+        delta = 0
     ) {
         // Public parameters
         this.func_kernel = undefined;
@@ -41,9 +41,9 @@ class Regularization {
         this.init_condition = init_condition;
         this.points_count = points_count;
         this.init_alpha = init_alpha;
+        this.eps = eps;
         this.h = h;
         this.delta = delta;
-        this.eps = eps;
 
         // Public settings
         this.max_iter = 50;
@@ -86,10 +86,12 @@ class Regularization {
 
         // Формируем правую часть уравнения
         const RIGHT_PART = createRightPart(
+            KERNEL,
             this.func_right,
             this.func_exact,
             x,
-            m
+            m,
+            hs
         );
 
         // Итерационный процесс для поиска параметра регуляризации
@@ -208,7 +210,7 @@ class Regularization {
     /** Получение точек сетки */
     getPoints() {
         return this._data.points;
-    }   
+    }
 }
 
 /** Функция формирет ядро по заданной сетке */
@@ -233,7 +235,7 @@ function createKernel(func_kernel, s, x, n, m) {
  * либо c помощью функции точного решения,
  * если первая не задана (undefined)
 */
-function createRightPart(func_right, func_exact, x, m) {
+function createRightPart(K, func_right, func_exact, x, m, hs) {
     let F = [];
     if (func_right == undefined) {
         F = LinearAlgebra.dot(K, createExact(func_exact, x, m));
