@@ -13,9 +13,8 @@ class Regularization {
      * @function func_exact(s,i) Функция точного решения
      * @function func_right(x,i) Функция правой части уравнения
      * 
-     * 
      * @param {Array<Number>} init_condition Начальные условия [a,b,c,d]
-     * @param {Array<Number>} points_count Количество точек для разбиения [n,m]
+     * @param {Number} points_count Количество точек для разбиения
      * @param {Number} init_alpha Начальное значение параметра регуляризации
      * @param {Number} eps Погрешность определения параметра регуляризации
      * @param {Number} h Погрешность оператора
@@ -27,7 +26,7 @@ class Regularization {
      */
     constructor(
         init_condition = [0, 1, 0, 1],
-        points_count = [10, 10],
+        points_count = 10,
         init_alpha = 0.1e-6,
         eps = 0.00001,
         h = 0,
@@ -66,17 +65,16 @@ class Regularization {
 
         // Задаем сетку
         let [a, b, c, d] = this.init_condition;
-        let [n, m] = this.points_count;
+        let n = this.points_count;
+        let m = this.points_count;
 
         let hs = (b - a) / (n - 1);
         let hx = (d - c) / (m - 1);
 
         let s = [];
         let x = [];
-        for (let i = 0; i < n; i++) {
-            s[i] = a + i * hs;
-            x[i] = c + i * hx;
-        }
+        for (let i = 0; i < n; i++) s[i] = a + i * hs;
+        for (let i = 0; i < m; i++) x[i] = c + i * hx;
 
         // Записываем данные для вывода
         this._data.points = x;
@@ -203,7 +201,7 @@ class Regularization {
         return createExact(
             this.func_exact,
             this._data.points,
-            this.points_count[1]
+            this.points_count
         );
     }
 
