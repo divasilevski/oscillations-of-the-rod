@@ -14,7 +14,7 @@ class ShootingMethod extends Methods{
 		this.solution = runge_kutta.z;
 
 		// Find A
-		let A = p / runge_kutta.y[this._value_index(1.0)];
+		let A = -p / runge_kutta.y[this._value_index(1.0)];
 
 		// Myltiply on A
 		this.solution = [this.x, this.solution.map(el => el * A)];

@@ -23,7 +23,7 @@ let REG = new Regularization(
 REG.func_kernel = (x, s, i, j) => Math.cos(x * s) * Math.cos(x * s);
 REG.func_exact = (s, i) => 1.0 + s * s / 50;
 REG.func_right = (s, i) =>
-    -fr_sm[1][i] * Math.cos(s) * Math.cos(s) + Math.sin(2 * s) / (2 * s);
+    fr_sm[1][i] * Math.cos(s) * Math.cos(s) + Math.sin(2 * s) / (2 * s);
 
 let solution = REG.getSolution();
 let exact = REG.getExact();

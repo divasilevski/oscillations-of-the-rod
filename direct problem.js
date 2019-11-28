@@ -1,7 +1,7 @@
 const FUNC = x => 1.0 + (x * x) / 50; // My E(x) function for opt. 6
 const STEP = 0.1;
 const KAPPA = 1.5;
-const P = 1;
+const P = -1;
 
 // set integral Error
 Integral.setStep(0.001)

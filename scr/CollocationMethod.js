@@ -10,7 +10,7 @@ class CollocationMethod extends Methods {
 
 		// Create b-vector (Right part)
 		let b = this.x.map(
-			element => p * Integral.simpson(x => 1.0 / func(x), 0, element)
+			element => -p * Integral.simpson(x => 1.0 / func(x), 0, element)
 		);
 
 		// Create K-matrix (Kernel)
