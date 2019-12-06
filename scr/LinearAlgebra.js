@@ -59,10 +59,10 @@ class LinearAlgebra {
 
     /** Создание вектора */
     static vector(a, b, h) {
-        let n = (b - a) / h + 1;
+        let n = (b - a) / h;
         let result_array = [];
-        for (let i = 0; i < n; i++) {
-            result_array.push(i * h);
+        for (let i = 0; i < n + 1; i++) {
+            result_array.push(a + i * h); 
         }
         return result_array;
     }

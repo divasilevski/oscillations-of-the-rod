@@ -65,8 +65,8 @@ class Regularization {
 
         // Задаем сетку
         let [a, b, c, d] = this.init_condition;
-        let n = this.points_count;
-        let m = this.points_count;
+        let n = this.points_count[0];
+        let m = this.points_count[1];
 
         let hs = (b - a) / (n - 1);
         let hx = (d - c) / (m - 1);
@@ -77,7 +77,7 @@ class Regularization {
         for (let i = 0; i < m; i++) x[i] = c + i * hx;
 
         // Записываем данные для вывода
-        this._data.points = x;
+        this._data.points = s;
 
         // Формируем ядро
         const KERNEL = createKernel(this.func_kernel, s, x, n, m);
@@ -88,6 +88,7 @@ class Regularization {
             this.func_right,
             this.func_exact,
             x,
+            s,
             m,
             hs
         );
@@ -113,7 +114,7 @@ class Regularization {
             // Формируем новую alpha
             coeff = (alpha_1 - alpha_2) * res_2 / (res_2 - res_1);
             alpha = alpha_2 / (1 - 1 / alpha_1 * coeff);
-
+            
             // Проверка на погрешность определения параметра регуляризации
             if (Math.abs(alpha_2 - alpha) < this.eps) break;
 
@@ -132,18 +133,19 @@ class Regularization {
     residual(K, F, n, m, hs, hx, alpha) {
         // Находим решение
         let solution = this.tikhonov(...arguments);
-
+        
         // Умножаем ядро на решение
         let temp = LinearAlgebra.dot(K, solution);
-
+        
         // Отнимаем правую часть, возводим в квадрат и суммируем
         let mu = 0;
-        for (let i = 0; i < solution.length; i++) {
+        for (let i = 0; i < m; i++) {
             mu += (temp[i] * hs - F[i]) * (temp[i] * hs - F[i]) * hx;
         }
 
         // Норма решения
         let norm = LinearAlgebra.norm(solution);
+        
 
         // По формуле невязки получаем:
         return mu - (this.delta + this.h * norm) ** 2;
@@ -181,7 +183,6 @@ class Regularization {
                 B_alpha[i][j] = hs * (B[i][j] + alpha * C[i][j]);
             }
         }
-
         // Решение СЛАУ
         return LinearAlgebra.solve(B_alpha, F);
     }
@@ -201,7 +202,7 @@ class Regularization {
         return createExact(
             this.func_exact,
             this._data.points,
-            this.points_count
+            this.points_count[0]
         );
     }
 
@@ -233,7 +234,7 @@ function createKernel(func_kernel, s, x, n, m) {
  * либо c помощью функции точного решения,
  * если первая не задана (undefined)
 */
-function createRightPart(K, func_right, func_exact, x, m, hs) {
+function createRightPart(K, func_right, func_exact, x, s, m, hs) {
     let F = [];
     if (func_right == undefined) {
         F = LinearAlgebra.dot(K, createExact(func_exact, x, m));
@@ -245,14 +246,14 @@ function createRightPart(K, func_right, func_exact, x, m, hs) {
 }
 
 /** Функция формирет точное решение по заданной сетке */
-function createExact(func_exact, x, m) {
+function createExact(func_exact, s, m) {
     console.assert(
         func_exact != undefined,
         "Функция точного решения не задана."
     );
 
     let E = [];
-    for (let j = 0; j < m; j++) E[j] = func_exact(x[j], j);
+    for (let j = 0; j < m; j++) E[j] = func_exact(s[j], j);
     return E;
 }
 

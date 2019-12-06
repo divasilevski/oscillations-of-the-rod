@@ -1,7 +1,7 @@
 /** Create solution by shooting method */
 class ShootingMethod extends Methods{
 	// redefinition
-	_create_solution(func, h, kappa, p) {
+	_create_solution(func, h, kappa = 1, p = 1) {
 		// Create system and initial values
 		let sys = (x, y, z) => [-kappa * kappa * z, y / func(x)];
 		let init = [1, 0];
